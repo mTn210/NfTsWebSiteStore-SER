@@ -11,10 +11,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-@EnableWebSecurity
 @Configuration
-public class SecurityConfigure extends WebSecurityConfigurerAdapter {
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
@@ -23,16 +22,18 @@ public class SecurityConfigure extends WebSecurityConfigurerAdapter {
     private JwtRequestFilter jwtRequestFilter;
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception{
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(customUserDetailsService);
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
-                .headers().frameOptions().disable()
-                .authorizeRequests().antMatchers("/api/public/authenticate").permitAll()
+                .authorizeRequests()
+                .antMatchers("/api/public/authenticate").permitAll() // Login endpoint
                 .antMatchers("/api/public/user/create").permitAll()
+                .antMatchers("/api/public/**").permitAll()
+                .antMatchers("/api/favorite-items/**").authenticated()
                 .antMatchers("/h2-console/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
@@ -47,5 +48,3 @@ public class SecurityConfigure extends WebSecurityConfigurerAdapter {
         return super.authenticationManager();
     }
 }
-
-
